@@ -67,3 +67,7 @@ git lfs pull
 | SOCKS port | 9050 | Tor SOCKS proxy port |
 | Control port | 9051 | Tor control port for circuit management |
 | Rotation interval | 10s | Seconds between IP rotations (Tor minimum) |
+
+---
+
+![Torxy in Burp Suite](https://gcdnb.pbrd.co/images/eU3WnRuzu25h.png?o=1)
