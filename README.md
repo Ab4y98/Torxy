@@ -1,5 +1,12 @@
 # Torxy - Burp Suite Tor Proxy Extension
 
+
+![Torxy in Burp Suite](https://gcdnb.pbrd.co/images/V1TEynBtbGgx.png?o=1)
+![macOS](https://img.shields.io/badge/macOS-000000?style=flat&logo=apple&logoColor=white)
+![Windows](https://img.shields.io/badge/Windows-0078D6?style=flat&logo=windows&logoColor=white)
+![Linux](https://img.shields.io/badge/Linux-FCC624?style=flat&logo=linux&logoColor=black)
+![Python](https://img.shields.io/badge/Python-3776AB?style=flat&logo=python&logoColor=white)
+
 Burp Suite extension that routes all traffic through Tor with automatic IP rotation every 10 seconds. Compatible with macOS, Linux, and Windows.
 
 ## Prerequisites
