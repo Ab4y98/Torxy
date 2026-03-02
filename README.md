@@ -7,7 +7,7 @@
 ![Linux](https://img.shields.io/badge/Linux-FCC624?style=flat&logo=linux&logoColor=black)
 ![Python](https://img.shields.io/badge/Python-3776AB?style=flat&logo=python&logoColor=white)
 
-Burp Suite extension that routes all traffic through Tor with automatic IP rotation every 10 seconds. Compatible with macOS, Linux, and Windows.
+Burp Suite extension that routes all traffic through Tor with automatic IP rotation every 10 seconds. Compatible with macOS (Apple Silicon & Intel), Linux, and Windows.
 
 ## Prerequisites
 
@@ -16,56 +16,44 @@ Burp Suite extension that routes all traffic through Tor with automatic IP rotat
 
 ## Setup
 
-### 1. Download Tor binaries (one-time)
-
-```bash
-cd Torxy
-./setup.sh
-```
-
-This downloads the Tor Expert Bundle for all platforms into `bin/`. Requires `curl` and `tar` (both native on macOS, Linux, and Windows 10+).
-
-> **macOS note:** If you get SSL errors with the system curl, install Homebrew's curl first: `brew install curl`. The script will auto-detect and use it.
-
-### 2. Load in Burp Suite
-
 1. Go to **Extensions** > **Extensions settings** > **Python environment**
 2. Set the path to the Jython standalone JAR (one-time)
 3. Go to **Extensions** > **Installed** > **Add**
 4. Extension type: **Python**, select `torxy.py`
 5. The **Torxy** tab appears in Burp
 
+Tor is downloaded automatically on first run. No manual installation required.
+
 ## Usage
 
 1. Open the **Torxy** tab
-2. Click **Start Tor**
+2. Click **Start Tor** — Torxy will locate or auto-download the Tor Expert Bundle
 3. Configure Burp's SOCKS proxy:
    - **Settings** > **Network** > **Connections** > **SOCKS Proxy**
    - Host: `127.0.0.1`, Port: `9050`
    - Check **Use SOCKS proxy**
 4. All Burp traffic now routes through Tor with IP rotation every 10 seconds
 
+You can also provide a custom Tor binary path using the text field in the Controls panel.
+
+## How It Works
+
+- **Auto-download**: If Tor isn't installed on your system, Torxy downloads the official Tor Expert Bundle from `dist.torproject.org` and stores it in `~/.BurpSuite/bapps/torxy/`.
+- **macOS Gatekeeper**: Downloaded binaries are automatically ad-hoc code signed to prevent macOS from blocking them.
+- **IP rotation**: A background thread requests a new Tor circuit via the control port every 10 seconds, cycling your exit IP.
+- **Control port auth**: Torxy uses hashed password authentication (falls back to cookie auth if hashing fails).
+
 ## Project Structure
 
 ```
 Torxy/
-  torxy.py              Burp extension (single file)
-  setup.sh              Downloads Tor binaries for all platforms
-  bin/
-    macos-aarch64/tor/  macOS Apple Silicon
-    macos-x86_64/tor/   macOS Intel
-    linux-x86_64/tor/   Linux x86_64
-    windows-x86_64/tor/ Windows x86_64
+  torxy.py    Burp extension (single file)
+  setup.sh    Optional script to pre-download Tor bundles for all platforms
 ```
 
-## Git LFS
-
-Binary files in `bin/` are tracked with Git LFS. After cloning:
-
-```bash
-git lfs install
-git lfs pull
-```
+Runtime files are stored in:
+- `~/.BurpSuite/bapps/torxy/` — downloaded Tor binary + libs
+- `$TMPDIR/torxy_data/` — Tor data directory and torrc (ephemeral)
 
 ## Configuration
 
@@ -73,7 +61,16 @@ git lfs pull
 |---------|---------|-------------|
 | SOCKS port | 9050 | Tor SOCKS proxy port |
 | Control port | 9051 | Tor control port for circuit management |
-| Rotation interval | 10s | Seconds between IP rotations (Tor minimum) |
+| Rotation interval | 10s | Seconds between IP rotations |
+
+## Troubleshooting
+
+| Problem | Solution |
+|---------|----------|
+| Tor not found | Torxy auto-downloads it. If download fails, install Tor manually and enter the path in the Controls panel. |
+| "Tor exited before full bootstrap" | On macOS, ensure `codesign` is available (ships with Xcode CLI tools: `xcode-select --install`). |
+| Port conflict on 9050/9051 | Another Tor instance or service may be using these ports. Stop it first. |
+| Download fails behind proxy | Torxy tries `curl` first, then falls back to Java HTTPS. Ensure outbound access to `dist.torproject.org`. |
 
 ---
 
