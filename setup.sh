@@ -50,10 +50,11 @@ done
 # Make tor binaries executable and clear macOS quarantine
 find bin -name "tor" -type f -exec chmod +x {} \;
 if [ "$(uname)" = "Darwin" ]; then
-    echo "Clearing macOS quarantine flags..."
-    xattr -cr bin/ 2>/dev/null
-    find bin -name "tor" -type f -exec codesign --force --deep --sign - {} \; 2>/dev/null
-    find bin -name "*.dylib" -type f -exec codesign --force --deep --sign - {} \; 2>/dev/null
+    echo "Clearing macOS quarantine flags and code signing..."
+    find bin -type f \( -name "tor" -o -name "*.dylib" -o -perm +111 \) | while read -r f; do
+        xattr -c "$f" 2>/dev/null
+        codesign --force --deep --sign - "$f" 2>/dev/null
+    done
 fi
 
 echo ""
